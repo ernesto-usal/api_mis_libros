@@ -6,6 +6,11 @@
   "scripts": {
     "start": "node ./app.js"
   },
+  "license": "MIT",
+  "repository": { 
+    "type" : "git", 
+    "url" : "https://github.com/ernesto-usal/api_mis_libros.git"
+  },
   "dependencies": {
     "body-parser": "1.15.0",
     "cors": "2.7.1",

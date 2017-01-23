@@ -3,10 +3,10 @@
 <strong>(EN CONSTRUCCIÓN)</strong><br>
 API REST creada utilizando la infraestructura Express sobre NodeJS y MongoDB como base de datos.
 
-### Instalación
+### Instalación.
 
 * Es necesario tener instalado el entorno NodeJS. Si no está instalado, hacerlo desde la página principal de NodeJS https://nodejs.org/es/.
-Incluído en el entorno ya vendrá el gestor de paquetes npm utilizado para instalar la API.
+Incluído con el entorno ya vendrá el gestor de paquetes npm utilizado para instalar la API.
 * Ejecutar el comando ```git clone dirección_repositorio``` en la carpeta donde se desee instalar el API.
 * Colocarse dentro de la carpeta y ejecutar el comando ```npm install``` para inicializar el proyecto con las dependencias requeridas.
 * En el fichero de entrada del servidor app.js se realiza la conexión a la base de datos utilizando las credenciales de un fichero de configuración externo. Para utilizar un base de datos propia será necesario por lo tanto crear una carpeta config en la carpeta raíz de la aplicación y un fichero index.js con el siguiente contenido:<br>
@@ -35,5 +35,5 @@ module.exports = config;
 * GET /api/autores/:id - Recuperación de un determinado autor a partir de su _id.
 * POST /api/autores/ pasándole nombre - Inserción de un nuevo autor.
 
-### Autor
+### Autor.
 Ernesto Boado
