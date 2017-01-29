@@ -7,17 +7,18 @@
     "start": "node ./app.js"
   },
   "license": "MIT",
-  "repository": { 
-    "type" : "git", 
-    "url" : "https://github.com/ernesto-usal/api_mis_libros.git"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ernesto-usal/api_mis_libros.git"
   },
   "dependencies": {
-    "body-parser": "1.15.0",
-    "cors": "2.7.1",
-    "errorhandler": "1.4.3",
-    "express": "4.13.4",
-    "mongoose": "4.4.10",
-    "morgan": "1.7.0",
-    "express-session": "1.13.0"
+    "body-parser": "^1.15.0",
+    "cors": "^2.7.1",
+    "errorhandler": "^1.4.3",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "jsonwebtoken": "^7.2.1",
+    "mongoose": "^4.4.10",
+    "morgan": "^1.7.0"
   }
 }

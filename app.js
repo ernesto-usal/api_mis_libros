@@ -6,11 +6,11 @@
   La variable principal en este caso es app, que se inicializará con la 
   llamada a la función express(). App es la variable global del framework 
   express, con la que se trabajará para añadirle middlewares de todo tipo
-  (librería que utilizará la app), routers para las redirecciones y control
+  (librerías que utilizará la app), routers para las redirecciones y control
   de errores entre otros.
   Después de la inicialización de la app y las variables que utilizará la 
   misma, se inicializará la variable server con app.listen para que el servidor
-  web se pongo a funcionar a la espera de peticiones.
+  web se inicie a la espera de peticiones.
 */
 
 var express = require('express'),
@@ -18,7 +18,9 @@ var express = require('express'),
     session = require('express-session'),
     cors = require('cors'),
     errorhandler = require('errorhandler'),
-    mongoose = require('mongoose');
+    mongoose = require('mongoose'),
+    jwt = require('jsonwebtoken')
+    config = require('./config');
 
 var isProduction = process.env.NODE_ENV === 'production';
 
@@ -41,7 +43,6 @@ if (!isProduction) {
 }
 
 // Conexión a la DB
-var config = require('./config');
 if(isProduction){
   mongoose.connect(process.env.MONGODB_URI);
 } else {
@@ -50,9 +51,13 @@ if(isProduction){
   mongoose.set('debug', true);
 }
 
+// Recuperación de la variable secret_jwt para el sistema de identificación por token
+app.set('secret_jwt', config.secret_jwt);
+
 // Require de los modelos
 require('./models/Libro');
 require('./models/Autor');
+require('./models/Usuario');
 
 // Use del router que contiene todos los demás de la aplicación
 app.use(require('./routes'));
