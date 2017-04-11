@@ -12,6 +12,8 @@
     "url": "https://github.com/ernesto-usal/api_mis_libros.git"
   },
   "dependencies": {
+    "async": "^2.3.0",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.15.0",
     "cors": "^2.7.1",
     "errorhandler": "^1.4.3",

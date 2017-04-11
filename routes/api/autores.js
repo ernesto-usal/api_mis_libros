@@ -87,7 +87,7 @@ router.post('/', function(req, res, next){
     if(err){
       return next("Error al guardar el autor - "+err.errmsg);
     } else{
-      res.send("Inserción correcta");
+      res.json("Inserción correcta");
     }
   });
 });

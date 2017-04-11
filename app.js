@@ -64,17 +64,17 @@ app.use(require('./routes'));
 
 // Función de manejo de errores para entorno de desarrollo
 if (!isProduction) {
-  app.use(function(err, req, res, next) {
-    console.log(err.stack);
-    res.status(err.status || 500);
+  app.use(function(err_message, req, res, next) {
+    console.log(err_message);
+    res.status(500);
+    console.log(err_message);
     res.json({'errors': {
-      message: err.message,
-      error: err
+      message: err_message,
     }});
   });
 }
 
 // Set up del servidor
-var server = app.listen( process.env.PORT || 3000, function(){
+var server = app.listen( process.env.PORT || 3001, function(){
   console.log('Listening on port ' + server.address().port);
 });
