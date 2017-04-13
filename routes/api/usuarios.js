@@ -50,7 +50,7 @@ router.post('/signup', function (req, res, next) {
         "email": usuario.email
       };
       let token = jwt.sign(claim_token, secret_jwt, {expiresIn: "1d"});
-      res.json("Usuario añadido correctamente " + usuario);
+      res.json({"mensaje": "Usuario añadido correctamente ", "token": token});
     }
   });
 });
