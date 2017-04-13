@@ -41,141 +41,84 @@ var router = require('express').Router();
 var mongoose = require('mongoose');
 var Libro = mongoose.model('Libro');
 var Autor = mongoose.model('Autor');
+var Usuario = mongoose.model('Usuario');
 
 var async = require('async');
+var _ = require('lodash');
 
-/* GET DE TODOS LOS LIBROS:
-    Utiliza el método find del modelo mongoose con condición vacía para
-    recuperar todos los libros de la colección.
+/* GET DE TODOS LOS LIBROS DE UN USUARIO:
+    Recupera todos los libros del usuario que envío el token.
 */
 router.get('/', function (req, res, next) {
-  Libro
-    .find({}, function (err, libros) {
-      if (err) {
-        return next("Error recuperando la lista de libros - " + err.errmsg);
-      }
-      //console.log(req.decoded_token.email);
-      res.json(libros);
-    });
-  
+  // Se llama a la función que recupera los libros de un usuario con el callback
+  // para responder a la petición
+  recuperar_libros_usuario(req.decoded_token.email, function (error, lista_libros) {
+    res.json(lista_libros);
+  });
 });
 
-/* GET DE UN LIBRO:
-    Utiliza el método findOne del modelo mongoose a partir de la query correspondiente
+/* GET DE LIBROS CON FILTRO
+    Recupera la lista de libros del usuario filtrada por las opciones de la query recibida
 */
 router.get('/:query', function (req, res, next) {
-  let search_type = "";
-  let query_string = "";
+  // Se llama a la función que recupera los libros de un usuario con el callback
+  // para responder a la petición
+  recuperar_libros_usuario(req.decoded_token.email, function (error, lista_libros) {
 
-  //----- Caso búsqueda por título
-  if (req.params.query.search("by_title=") >= 0) {
-    query_string = req
-      .params
-      .query
-      .split("by_title=")[1];
-    Libro.find({
-      "titulo": new RegExp(`.*${query_string}.*`, "i")
-    }, function (err, libro) {
-      if (err) {
-        return next("Error recuperando el libro - " + err.errmsg);
-      }
-      res.json(libro);
-    });
-  }
+    if (req.params.query.search("by_title=") >= 0) {
+      let valor_a_filtrar = extraer_valor_filtro_query(req.params.query, "by_title=");
+      let regex_filtrado = new RegExp(`.*${valor_a_filtrar}.*`, "i");
+      let array_filtrado = _.filter(lista_libros, libro => regex_filtrado.test(libro.titulo));
+      res.json(array_filtrado);
+    }
 
-  //----- Caso búsqueda por isbn
-  if (req.params.query.search("by_isbn_13=") >= 0) {
-    query_string = req
-      .params
-      .query
-      .split("by_isbn_13=")[1];
-    Libro.findOne({
-      "isbn": new RegExp(`.*${query_string}.*`, "i")
-    }, function (err, libro) {
-      if (err) {
-        return next("Error recuperando el libro - " + err.errmsg);
-      }
-      res.json(libro);
-    });
-  }
+    if (req.params.query.search("by_isbn=") >= 0) {
+      let valor_a_filtrar = extraer_valor_filtro_query(req.params.query, "by_isbn=");
+      let regex_filtrado = new RegExp(`.*${valor_a_filtrar}.*`, "i");
+      let array_filtrado = _.filter(lista_libros, libro => regex_filtrado.test(libro.isbn));
+      res.json(array_filtrado);
+    }
 
-  //----- Caso búsqueda libros comprados
-  if (req.params.query.search("by_comprados=") >= 0) {
-    query_string = req
-      .params
-      .query
-      .split("by_comprados=")[1];
-    Libro.find({
-      "comprado": query_string
-    }, function (err, libros) {
-      if (err) {
-        return next("Error recuperando el libro - " + err.errmsg);
-      }
-      res.json(libros);
-    });
-  }
+    if (req.params.query.search("by_comprados=") >= 0) {
+      let valor_a_filtrar = extraer_valor_filtro_query(req.params.query, "by_comprados=");
+      let regex_filtrado = new RegExp(`.*${valor_a_filtrar}.*`, "i");
+      let array_filtrado = _.filter(lista_libros, libro => regex_filtrado.test(libro.comprado_usuario));
+      res.json(array_filtrado);
+    }
 
-  //----- Caso búsqueda libros leídos
-  if (req.params.query.search("by_leidos=") >= 0) {
-    query_string = req
-      .params
-      .query
-      .split("by_leidos=")[1];
-    Libro.find({
-      "leido": query_string
-    }, function (err, libros) {
-      if (err) {
-        return next("Error recuperando el libro - " + err.errmsg);
-      }
-      res.json(libros);
-    });
-  }
+    if (req.params.query.search("by_leidos=") >= 0) {
+      let valor_a_filtrar = extraer_valor_filtro_query(req.params.query, "by_leidos=");
+      let regex_filtrado = new RegExp(`.*${valor_a_filtrar}.*`, "i");
+      let array_filtrado = _.filter(lista_libros, libro => regex_filtrado.test(libro.leido_usuario));
+      res.json(array_filtrado);
+    }
 
-  //----- Caso búsqueda por autor
-  if (req.params.query.search("by_autor=") >= 0) {
-    query_string = req
-      .params
-      .query
-      .split("by_autor=")[1];
-
-    // Async waterfall general
-    async.waterfall([
-      // Función que busca los autores y manda la lista a la siguiente
-      function (callback) {
-        Autor.find({
-          "nombre": new RegExp(`.*${query_string}.*`, "i")
-        }, '_id').exec(callback);
-      },
-      // Función que transforma la lista de objetos con id a una lista de id de
-      // autores
-      function (lista_autores, callback) {
-        let lista_id_autores = [];
-        async.each(lista_autores, function (autor, callback) {
-          lista_id_autores.push(autor._id);
-        }, function (err) {});   
-        callback(null, lista_id_autores);
-      },
-      // Función que recupera todos los libros de todos los autores correspondientes
-      function (lista_id_autores, callback) {
-        console.log(lista_id_autores);
-        Libro.find({
-            "autores": {
-              $elemMatch: {
-                $in: lista_id_autores
-              }
+    if (req.params.query.search("by_autor=") >= 0) {
+      let valor_a_filtrar = extraer_valor_filtro_query(req.params.query, "by_autor=");
+      let regex_filtrado = new RegExp(`.*${valor_a_filtrar}.*`, "i");
+      let ids_autores = Autor.find({
+        "nombre": regex_filtrado
+      }, '_id', function (err, autores) {
+        let lista_plana_ids_autores = _.map(autores, "_id");
+        // Se responde con la lista de libros
+        res.json(_.filter(lista_libros, libro => {
+          // Array true/false según alguno de los autores del libro coincidan con alguno
+          // de los buscados
+          let lista_bool_coincidencias_autores = _.map(libro.autores, function (autor) {
+            if (_.find(lista_plana_ids_autores, autor) !== undefined) 
+              return true
+            else 
+              return false;
             }
-          }).exec(callback);
-      },
-      // Función que envía la respuesta con los libros
-      function (lista_libros, callback) {
-        res.json(lista_libros);
-      }
-    ]);// waterfall
+          );
+          // Se devuelve true si todos los valores del array de coincidencias son true
+          return _.every(lista_bool_coincidencias_autores);
+        }));
+      });
 
-  }// caso búsqueda por autor
-
-});// método router
-
+    }
+  }); // recuperar libros usuario
+}); // método router
 
 /* POST DE UN LIBRO:
     Recibe parámetros asociados a la petición POST, crea una nueva instancia
@@ -188,8 +131,6 @@ router.post('/', function (req, res, next) {
   }
   var libro = new Libro({
     "titulo": req.body.titulo,
-    "leido": false,
-    "comprado": false,
     "url_imagen_portada": req.body.url_imagen_portada,
     "isbn": req.body.isbn || "",
     "tipo_isbn": req.body.tipo_isbn || "",
@@ -213,20 +154,92 @@ router.post('/', function (req, res, next) {
       );
     }
 
-    libro.asignarAutorALibro(autor);
-    autor.asignarLibroAAutor(libro);
-    autor.save();
-    libro.save(function (err) {
-      if (err) {
-        return next("Ya existe ese libro en la colección");
-      } else {
-        res.json("Libro añadido correctamente" + libro);
+    // Se recupera el usuario
+    var id_usuario = Usuario.findOne({
+      "email": req.decoded_token.email
+    }, function (err, usuario) {
+      if (usuario === null) {
+        return next("No existe el usuario");
       }
+
+      // Se intenta recuperar el libro por el titulo (para comprobar si ya existe en
+      // la colección Libros)
+      Libro
+        .findOne({
+          titulo: libro.titulo
+        }, function (err, libro_buscado) {
+          // Si no está el libro en la colección Libros, se añade a la misma, el id del
+          // libro en la colección Autores y a la lista de libros del usuario
+          if (!libro_buscado) {
+            libro.asignarAutorALibro(autor);
+            autor.asignarLibroAAutor(libro);
+            autor.save();
+            libro.save(function (err) {
+
+              usuario.asignarLibroaUsuario(libro);
+              usuario.save(function (err) {
+                if (err) 
+                  return next("Error al guardar el libro en el usuario - " + err)
+              });
+              res.json("Libro añadido correctamente" + libro);
+
+            });
+            // Si ya existía el libro, sólo se añade a la lista de libros del usuario
+          } else {
+
+            // Si el usuario ya tiene el libro en su lista
+            if (_.some(usuario.libros, {'id_libro': libro_buscado._id})) {
+              res.json("El usuario ya tiene el libro en su lista");
+            } else {
+              usuario.asignarLibroaUsuario(libro_buscado);
+              usuario.save(function (err) {
+                if (err) 
+                  return next("Error al guardar el libro en el usuario - " + err)
+              });
+              res.json("Libro añadido correctamente" + libro_buscado);
+            }
+          }
+        });
+
     });
-    //}
   });
 });
 
+router.delete("/:id", function (req, res, next) {
+  // Eliminación del _id del libro de la lista de libros del autor
+  Libro
+    .findById(req.params.id, function (err, libro) {
+      if (err) {
+        return next("Error buscando el libro - " + err.errmsg);
+      }
+      if (!libro) {
+        return next("No existe ese libro - " + err.errmsg);
+      }
+
+      // Se elimina el libro de la lista de libros del usuario
+      var id_usuario = Usuario.findOne({
+        "email": req.decoded_token.email
+      }, function (err, usuario) {
+        Usuario.update({
+          _id: usuario._id
+        }, {
+            $pull: {
+              libros: {
+                "id_libro": libro._id
+              }
+            }
+          })
+          .exec(function (err, res_query) {
+            if (!err) 
+              res.json("Libro eliminado correctamente");
+            }
+          );
+
+      });
+    });
+});
+
+/*
 router.delete("/:id", function (req, res, next) {
   // Eliminación del _id del libro de la lista de libros del autor
   Libro
@@ -264,22 +277,37 @@ router.delete("/:id", function (req, res, next) {
             });
         });
 
-      // Eliminación del libro
-      Libro.findByIdAndRemove({
-        _id: req.params.id
-      }, function (err) {
-        if (err) {
-          return next("Error eliminando el libro - " + err.errmsg);
-        }
-        //res.json("Libro eliminado correctamente");
-      });
-      res.json("Libro eliminado correctamente");
+      // Se elimina el libro de la lista de libros del usuario
+      var id_usuario = Usuario.findOne({
+        "email": req.decoded_token.email
+      }, function (err, usuario) {
+        //console.log(usuario); usuario.quitarLibroUsuario(libro);
+        console.log(libro._id);
+        Usuario.update({
+          _id: usuario._id
+        }, {
+          $pull: {
+            libros:
+              {
+                "id_libro": libro._id
+              }
+            }
+          }).exec();
+
+          // Eliminación del libro
+          Libro.findByIdAndRemove({
+            _id: req.params.id
+          }, function (err) {
+            if (err) {
+              return next("Error eliminando el libro - " + err.errmsg);
+            }
+          });
+          res.json("Libro eliminado correctamente");
+        });
     });
 
-});
+  });*/
 
-/*
-*/
 router.post('/change-state/', function (req, res, next) {
 
   // Comprobación de que vengan los parámetros
@@ -306,6 +334,51 @@ router.post('/change-state/', function (req, res, next) {
     });
   });
 });
+
+// Función que recupera una lista de libros de usuario a partir de un email. Se
+// le paso el callback(err, lista_libros)
+let recuperar_libros_usuario = (email, callback_final) => {
+  // Async waterfall general
+  async.waterfall([
+    // Función que recupera el objeto del usuario (colección Usuario) con sus libros
+    // a partir del email del token
+    function (callback) {
+      let lista_id_books = Usuario
+        .findOne({"email": email})
+        .select('libros.id_libro libros.comprado libros.leido')
+        .exec(callback);
+    },
+    // Función que recupera todos los libros (colección Libro) de la lista de ids de
+    // libro (colección Usuario)
+    function (lista_id_libros, callback) {
+      Libro
+        .find({
+          "_id": {
+            $in: _.map(lista_id_libros.libros, 'id_libro')
+          }
+        })
+        .exec(function (err, res_query) {
+          callback(null, res_query, lista_id_libros.libros)
+        });
+    },
+    // Función que añade a la lista de libros (colección Libro) con los datos
+    // completos los campos de comprado y leído (colección Usuario)
+    function (lista_libros, lista_libros_raw, callback) {
+      lista_libros = _.map(lista_libros, function (libro) {
+        let libro_raw = _.find(lista_libros_raw, {"id_libro": libro._id});
+        let campos_to_add = {
+          comprado_usuario: libro_raw.comprado,
+          leido_usuario: libro_raw.leido
+        };
+        return _.assign({}, libro._doc, campos_to_add);
+      });
+      callback(null, lista_libros);
+    }
+  ], callback_final); // waterfall
+}
+
+//Función que extraer el valor a filtrar pasado en la query según un criterio
+let extraer_valor_filtro_query = (query, criterio) => query.split(criterio)[1];
 
 // Se exporta el router definido para que otros elementos de la aplicación lo
 // puedan utilizar.

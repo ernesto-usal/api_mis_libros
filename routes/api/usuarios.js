@@ -87,24 +87,7 @@ router.post('/login', function (req, res, next) {
         };
         let token = jwt.sign(claim_token, config.secret_jwt, {expiresIn: "1d"});
         
-/////////////////////////////AÑADIR A LA LISTA DE LIBROS - QUITAR DE AQUI Y CAMBIAR RES.JSON DE SITIO
-        Libro.find({
-          "_id": "58e6bc1a62acb5fd7596ce1b"
-        }, function (err, libro) {
-          if (err) {
-            return next("Error recuperando el libro - " + err.errmsg);
-          }
-
-          usuario.asignarLibroaUsuario(libro[0]);
-          usuario.save(function (err) {
-            if (err) 
-              return next("Error al guardar - " + err)
-          });
-
-          res.json({message: 'Login correcto', token: token});
-
-        });
-
+        res.json({message: 'Login correcto', token: token});
       }
     });
 });
