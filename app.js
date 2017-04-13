@@ -44,7 +44,7 @@ if (!isProduction) {
 
 // Conexión a la DB
 if(isProduction){
-  mongoose.connect(process.env.MONGODB_URI);
+  mongoose.connect(config.url_database);
 } else {
   //mongoose.connect('mongodb://ernesto.boado.prog:pass@ds029715.mlab.com:29715/mislibrosdb');
   mongoose.connect(config.url_database);
