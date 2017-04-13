@@ -44,15 +44,11 @@ if (!isProduction) {
 
 // Conexión a la DB
 if(isProduction){
-  mongoose.connect(config.url_database);
+  mongoose.connect(process.env.URL_DB);
 } else {
-  //mongoose.connect('mongodb://ernesto.boado.prog:pass@ds029715.mlab.com:29715/mislibrosdb');
   mongoose.connect(config.url_database);
   mongoose.set('debug', true);
 }
-
-// Recuperación de la variable secret_jwt para el sistema de identificación por token
-app.set('secret_jwt', config.secret_jwt);
 
 // Require de los modelos
 require('./models/Libro');

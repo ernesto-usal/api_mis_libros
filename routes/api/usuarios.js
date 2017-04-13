@@ -8,6 +8,9 @@ var config = require('../../config');
 
 var async = require('async');
 
+var isProduction = process.env.NODE_ENV === 'production';
+let secret_jwt = (isProduction) ? process.env.SECRET_JWT: config.secret_jwt;
+
 /* GET DE TODOS LOS USUARIOS:
     Devuelve todos los usuarios de la colección.
 */
@@ -46,7 +49,7 @@ router.post('/signup', function (req, res, next) {
       let claim_token = {
         "email": usuario.email
       };
-      let token = jwt.sign(claim_token, config.secret_jwt, {expiresIn: "1d"});
+      let token = jwt.sign(claim_token, secret_jwt, {expiresIn: "1d"});
       res.json("Usuario añadido correctamente " + usuario);
     }
   });
@@ -85,7 +88,7 @@ router.post('/login', function (req, res, next) {
         let claim_token = {
           "email": usuario.email
         };
-        let token = jwt.sign(claim_token, config.secret_jwt, {expiresIn: "1d"});
+        let token = jwt.sign(claim_token, secret_jwt, {expiresIn: "1d"});
         
         res.json({message: 'Login correcto', token: token});
       }
