@@ -39,7 +39,7 @@ router.post('/signup', function (req, res, next) {
     return next("Datos de usuario incorrectos - " + err.errmsg);
   }
   // Se crea un nuevo objeto Usuario a partir de los datos recibidos
-  var usuario = new Usuario({"email": req.body.email, "nick": req.body.nick, "password": req.body.password, "tipo": req.body.tipo});
+  var usuario = new Usuario({"email": req.body.email, "nick": req.body.nick || req.body.email, "password": req.body.password, "tipo": req.body.tipo});
 
   // Se guarda en la DB el nuevo usuario
   usuario.save(function (err) {

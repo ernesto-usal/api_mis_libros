@@ -3,7 +3,8 @@ var router = require('express').Router();
 router.use('/api', require('./api'));
 router.use('/', function(req, res, next){
   res.send("-- API DE LIBROS CREADA UTIZANDO EXPRESS Y NODEJS --<br/>"+
-            "<br/>Puntos de entrada (es necesario token de identificación para todos menos /api/autentificación):<br/>"+
+            "<br/>Puntos de entrada (es necesario token de identificación para todos menos /api/usuarios/login"+
+            " y /api/usuarios/signup:<br/>"+
             "POST /api/autentificacion con un email válido y contraseña para recibir un token de identificación<br/>"+
             "POST /api/usuarios con email y password registrar un usuario<br/>"+
             "GET /api para acceder al punto principal de la api<br/>"+
