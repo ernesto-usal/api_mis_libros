@@ -6,7 +6,7 @@ var config = require('../../config');
 router.use('/usuarios', require('./usuarios'));
 
 // Middelware de identificación con token jwt
-/*router.use(function(req, res, next){
+router.use(function(req, res, next){
   // Se intenta recuperar el token ya venga por un campo de formulario POST, como parámetro de 
   // la petición GET o como header
   var token = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -25,7 +25,7 @@ router.use('/usuarios', require('./usuarios'));
   } else {
     return next("No se ha enviado el token de autentificación");
   }
-});*/
+});
 
 router.use('/libros', require('./libros'));
 router.use('/autores', require('./autores'));
