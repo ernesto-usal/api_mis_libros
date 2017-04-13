@@ -9,4 +9,5 @@ Thumbs.db
 
 # CARPETAS PROYECTO#
 node_modules
+config
 .vscode
