@@ -80,5 +80,6 @@ UsuarioSchema.methods.asignarLibroaUsuario = function (libro) {
         .push({id_libro: libro});
 };
 
+
 // Compilación del modelo a partir del schema.
 mongoose.model('Usuario', UsuarioSchema);

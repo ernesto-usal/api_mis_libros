@@ -239,6 +239,52 @@ router.delete("/:id", function (req, res, next) {
     });
 });
 
+router.post('/cambiar-estado/', function (req, res, next) {
+  // Comprobación de que vengan los parámetros necesarios y preparación
+  let tipo_estado = (req.body.tipo_estado === "comprado")
+    ? "comprado"
+    : ((req.body.tipo_estado === "leido")
+      ? "leido"
+      : "")
+  let fecha_a_modificar = (req.body.tipo_estado === "comprado")
+    ? "fecha_comprado"
+    : ((req.body.tipo_estado === "leido")
+      ? "fecha_leido"
+      : "")
+  
+  if ((tipo_estado === "") || !req.body.valor_estado){
+    return next("Error en los parámetros enviados");
+  }
+
+  // Se recupera el usuario a partir del email del token
+  Usuario
+    .findOne({"email": req.decoded_token.email})
+    .exec((function (err, resultado) {
+      // Se selecciona el index del libro de la lista del usuario a partir del id
+      // recibido
+      let index_libro = _.findIndex(resultado.libros, {
+        "id_libro": mongoose.Types.ObjectId(req.body.id_libro)
+      });
+      // Se cambia el estado
+      resultado.libros[index_libro][tipo_estado] = req.body.valor_estado;
+      // Se asigna la fecha ligada al estado!!!!!!!!!!!!!!!!!!!
+      console.log(typeof req.body.valor_estado);
+      resultado.libros[index_libro][fecha_a_modificar] = (req.body.valor_estado === "true") ? Date.now(): null;
+      resultado
+        .libros[index_libro]
+        .markModified(tipo_estado);
+      resultado
+        .libros[index_libro]
+        .markModified(fecha_a_modificar);
+      resultado.save(function (err) {
+        if (err) 
+          console.log(err);
+        console.log(resultado.libros);
+        res.json("Estado cambiado correctamente");
+      });
+    }));
+});
+
 /*
 router.delete("/:id", function (req, res, next) {
   // Eliminación del _id del libro de la lista de libros del autor
@@ -308,32 +354,7 @@ router.delete("/:id", function (req, res, next) {
 
   });*/
 
-router.post('/change-state/', function (req, res, next) {
 
-  // Comprobación de que vengan los parámetros
-  // necesarios!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Recuperación de los parámetros
-  var body = req.body;
-
-  // Recuperación del libro correspondiente
-  var id_libro = Libro.findById(body.id_book, function (err, libro) {
-    // Si no existe el libro en la DB
-    if (libro === null) {
-      return next("No existe el libro");
-    }
-
-    // Se llama al método del modelo
-    libro.cambiarEstado(body.state_type, body.new_state);
-
-    // Se guardan los cambios
-    libro.save(function (err) {
-      if (err) {
-        return next("Error al cambiar el estado y guardar");
-      } else {
-        res.json("Estado cambiado correctamente");
-      }
-    });
-  });
-});
 
 // Función que recupera una lista de libros de usuario a partir de un email. Se
 // le paso el callback(err, lista_libros)
