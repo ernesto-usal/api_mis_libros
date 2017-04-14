@@ -260,6 +260,10 @@ router.post('/cambiar-estado/', function (req, res, next) {
   Usuario
     .findOne({"email": req.decoded_token.email})
     .exec((function (err, resultado) {
+      if (resultado.libros.length <= 0) {
+        return next("El usuario no tiene libros");
+      }
+      
       // Se selecciona el index del libro de la lista del usuario a partir del id
       // recibido
       let index_libro = _.findIndex(resultado.libros, {
