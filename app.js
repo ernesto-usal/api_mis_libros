@@ -20,9 +20,11 @@ var express = require('express'),
     errorhandler = require('errorhandler'),
     mongoose = require('mongoose'),
     jwt = require('jsonwebtoken')
-    config = require('./config');
+    //config = require('./config');
 
 var isProduction = process.env.NODE_ENV === 'production';
+
+if (!isProduction) {var config = require('./config');}
 
 // Creación de la variable global app de Express.
 var app = express();
