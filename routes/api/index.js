@@ -6,7 +6,7 @@ var jwt = require('jsonwebtoken');
 router.use('/usuarios', require('./usuarios'));
 
 var isProduction = process.env.NODE_ENV === 'production';
-if (!isProduction) {var config = require('./config');}
+if (!isProduction) {var config = require('../../config');}
 
 // Middelware de identificación con token jwt
 router.use(function(req, res, next){

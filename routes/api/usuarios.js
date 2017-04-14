@@ -10,7 +10,7 @@ var async = require('async');
 
 var isProduction = process.env.NODE_ENV === 'production';
 
-if (!isProduction) {var config = require('./config');}
+if (!isProduction) {var config = require('../../config');}
 let secret_jwt = (isProduction) ? process.env.SECRET_JWT: config.secret_jwt;
 
 /* GET DE TODOS LOS USUARIOS:
