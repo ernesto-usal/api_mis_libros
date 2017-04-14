@@ -1,11 +1,12 @@
 var router = require('express').Router();
 var jwt = require('jsonwebtoken');
-var config = require('../../config');
+//var config = require('../../config');
 
 
 router.use('/usuarios', require('./usuarios'));
 
 var isProduction = process.env.NODE_ENV === 'production';
+if (!isProduction) {var config = require('./config');}
 
 // Middelware de identificación con token jwt
 router.use(function(req, res, next){

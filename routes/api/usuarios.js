@@ -4,11 +4,13 @@ var mongoose = require('mongoose');
 var Usuario = mongoose.model('Usuario');
 var Libro = mongoose.model('Libro');
 var jwt = require('jsonwebtoken');
-var config = require('../../config');
+//var config = require('../../config');
 
 var async = require('async');
 
 var isProduction = process.env.NODE_ENV === 'production';
+
+if (!isProduction) {var config = require('./config');}
 let secret_jwt = (isProduction) ? process.env.SECRET_JWT: config.secret_jwt;
 
 /* GET DE TODOS LOS USUARIOS:
