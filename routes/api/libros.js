@@ -251,8 +251,8 @@ router.post('/cambiar-estado/', function (req, res, next) {
     : ((req.body.tipo_estado === "leido")
       ? "fecha_leido"
       : "")
-  
-  if ((tipo_estado === "") || !req.body.valor_estado){
+
+  if ((tipo_estado === "") || !req.body.valor_estado) {
     return next("Error en los parámetros enviados");
   }
 
@@ -263,27 +263,35 @@ router.post('/cambiar-estado/', function (req, res, next) {
       if (resultado.libros.length <= 0) {
         return next("El usuario no tiene un libro con ese _id");
       }
-      
+
       // Se selecciona el index del libro de la lista del usuario a partir del id
       // recibido
       let index_libro = _.findIndex(resultado.libros, {
-        "id_libro": mongoose.Types.ObjectId(req.body.id_libro)
+        "id_libro": mongoose
+          .Types
+          .ObjectId(req.body.id_libro)
       });
+
       // Se cambia el estado
       resultado.libros[index_libro][tipo_estado] = req.body.valor_estado;
-      // Se asigna la fecha ligada al estado!!!!!!!!!!!!!!!!!!!
-      console.log(typeof req.body.valor_estado);
-      resultado.libros[index_libro][fecha_a_modificar] = (req.body.valor_estado === "true") ? Date.now(): null;
+      // Se asigna la fecha ligada al estado
+      resultado.libros[index_libro][fecha_a_modificar] = (req.body.valor_estado === "true")
+        ? Date.now()
+        : null;
+
+      // Se marcan los campos como modificados para que funcione el save
       resultado
         .libros[index_libro]
         .markModified(tipo_estado);
       resultado
         .libros[index_libro]
         .markModified(fecha_a_modificar);
+
+      // Se guardan las modificaciones
       resultado.save(function (err) {
-        if (err) 
-          console.log(err);
-        console.log(resultado.libros);
+        if (err) {
+          return next("Error al guardar el libro modificado");
+        }
         res.json("Estado cambiado correctamente");
       });
     }));
@@ -357,8 +365,6 @@ router.delete("/:id", function (req, res, next) {
     });
 
   });*/
-
-
 
 // Función que recupera una lista de libros de usuario a partir de un email. Se
 // le paso el callback(err, lista_libros)
